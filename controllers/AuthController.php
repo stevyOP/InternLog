@@ -57,6 +57,9 @@ class AuthController {
                         exit;
                     }
 
+                    // Regenerate session ID to prevent fixation
+                    session_regenerate_id(true);
+
                     // Set session variables
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['name'] = $user['name'];
@@ -100,8 +103,20 @@ class AuthController {
         if (isLoggedIn()) {
             logActivity($_SESSION['user_id'], 'logout', 'User logged out');
         }
-        
+
+        // Clear all session variables
+        $_SESSION = array();
+
+        // Delete the session cookie if it exists
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
+
+        // Destroy the session
         session_destroy();
+
+        // Redirect to login
         header('Location: index.php?page=login');
         exit;
     }
