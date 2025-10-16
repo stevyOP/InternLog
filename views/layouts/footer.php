@@ -43,9 +43,23 @@
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // jQuery CDN fallback to local copy
+        if (typeof jQuery === 'undefined') {
+            document.write('<script src="/assets/vendor/jquery-3.6.0.min.js"><\/script>');
+            console.warn('jQuery CDN failed; falling back to local jquery-3.6.0.min.js');
+        }
+    </script>
     
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Bootstrap CDN fallback to local copy
+        if (typeof bootstrap === 'undefined') {
+            document.write('<script src="/assets/vendor/bootstrap.bundle.min.js"><\/script>');
+            console.warn('Bootstrap CDN failed; falling back to local bootstrap.bundle.min.js');
+        }
+    </script>
     
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -77,8 +91,11 @@
                 $('.alert').fadeOut();
             }, 5000);
 
-            // Confirm delete actions
-            $('.btn-delete').on('click', function(e) {
+            // Diagnostic
+            console.log('Page scripts initialized');
+
+            // Confirm delete actions (delegated to document to work with DataTables redraws)
+            $(document).on('click', '.btn-delete', function(e) {
                 if (!confirm('Are you sure you want to delete this item?')) {
                     e.preventDefault();
                 }
