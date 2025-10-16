@@ -101,6 +101,19 @@
                 }
             });
 
+            // Plain JS fallback: delegated handler that works without jQuery
+            // This ensures basic functionality even when jQuery fails to load
+            (function() {
+                document.addEventListener('click', function(ev) {
+                    var el = ev.target.closest ? ev.target.closest('.btn-delete') : null;
+                    if (!el) return;
+                    if (!confirm('Are you sure you want to delete this item?')) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                    }
+                }, false);
+            })();
+
             // Form validation
             $('form').on('submit', function() {
                 const requiredFields = $(this).find('[required]');

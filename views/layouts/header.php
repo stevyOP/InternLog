@@ -48,6 +48,10 @@
             background: white;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             min-height: calc(100vh - 76px);
+            /* Ensure sidebar sits above other content and accepts pointer events */
+            position: relative;
+            z-index: 1050;
+            pointer-events: auto;
         }
 
         .sidebar .nav-link {
@@ -56,6 +60,10 @@
             border-radius: 8px;
             margin: 2px 10px;
             transition: all 0.3s ease;
+            /* Ensure links are clickable even if other elements overlap */
+            position: relative;
+            z-index: 1060;
+            pointer-events: auto;
         }
 
         .sidebar .nav-link:hover,

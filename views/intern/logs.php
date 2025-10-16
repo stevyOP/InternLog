@@ -105,7 +105,8 @@ include 'views/layouts/header.php';
                                             </a>
                                             
                                             <a href="index.php?page=intern&action=deleteLog&id=<?= $log['id'] ?>" 
-                                               class="btn btn-sm btn-outline-danger btn-delete" title="Delete">
+                                               class="btn btn-sm btn-outline-danger btn-delete" title="Delete"
+                                               onclick="return confirm('Are you sure you want to delete this item?');">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         <?php endif; ?>
