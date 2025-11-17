@@ -130,11 +130,35 @@ include 'views/layouts/header.php';
         <div class="card mb-4 text-center">
             <div class="card-body">
                 <div class="mb-3">
-                    <i class="fas fa-user-circle fa-5x text-muted"></i>
+                    <?php if ($user['profile_picture'] && file_exists($user['profile_picture'])): ?>
+                        <img src="<?= htmlspecialchars($user['profile_picture']) ?>?v=<?= time() ?>" 
+                             alt="Profile Picture" 
+                             class="rounded-circle" 
+                             style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #840100;">
+                    <?php else: ?>
+                        <i class="fas fa-user-circle fa-5x text-muted"></i>
+                    <?php endif; ?>
                 </div>
                 <h5><?= htmlspecialchars($user['name']) ?></h5>
                 <p class="text-muted mb-2"><?= htmlspecialchars($user['email']) ?></p>
                 <span class="badge bg-primary"><?= ucfirst($user['role']) ?></span>
+                
+                <!-- Upload Picture Form -->
+                <hr>
+                <form method="POST" action="index.php?page=profile&action=uploadPicture" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?= generateCSRFToken() ?>">
+                    <div class="mb-3">
+                        <label for="profile_picture" class="form-label">
+                            <i class="fas fa-camera me-2"></i>Change Profile Picture
+                        </label>
+                        <input type="file" class="form-control" id="profile_picture" 
+                               name="profile_picture" accept="image/jpeg,image/png,image/gif,image/jpg" required>
+                        <div class="form-text">Max size: 2MB. Formats: JPG, PNG, GIF</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-upload me-2"></i>Upload Picture
+                    </button>
+                </form>
             </div>
         </div>
 

@@ -61,6 +61,12 @@
         }
     </script>
     
+    <!-- Toastr JS for Toast Notifications -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <!-- Intro.js for Onboarding Tour -->
+    <script src="https://cdn.jsdelivr.net/npm/intro.js@7.2.0/intro.min.js"></script>
+    
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
@@ -68,10 +74,50 @@
     <!-- Custom JS -->
     <script>
         $(document).ready(function() {
-            // Initialize DataTables
+            // =================================================================
+            // TOASTR CONFIGURATION
+            // =================================================================
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": true,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+
+            // Show PHP flash messages as toasts
+            <?php if ($success = getFlashMessage('success')): ?>
+                toastr.success('<?= addslashes($success) ?>', 'Success');
+            <?php endif; ?>
+
+            <?php if ($error = getFlashMessage('error')): ?>
+                toastr.error('<?= addslashes($error) ?>', 'Error');
+            <?php endif; ?>
+
+            <?php if ($warning = getFlashMessage('warning')): ?>
+                toastr.warning('<?= addslashes($warning) ?>', 'Warning');
+            <?php endif; ?>
+
+            <?php if ($info = getFlashMessage('info')): ?>
+                toastr.info('<?= addslashes($info) ?>', 'Info');
+            <?php endif; ?>
+
+            // =================================================================
+            // DATATABLES WITH INFINITE SCROLL OPTION
+            // =================================================================
             $('.data-table').DataTable({
                 responsive: true,
-                pageLength: 10,
+                pageLength: 25,
                 order: [[0, 'desc']],
                 language: {
                     search: "Search:",
@@ -83,58 +129,304 @@
                         next: "Next",
                         previous: "Previous"
                     }
-                }
+                },
+                scrollY: '500px',
+                scrollCollapse: true,
+                scroller: true
             });
 
-            // Auto-hide alerts after 5 seconds
-            setTimeout(function() {
-                $('.alert').fadeOut();
-            }, 5000);
+            // =================================================================
+            // LOADING OVERLAY
+            // =================================================================
+            window.showLoading = function() {
+                $('#loadingOverlay').addClass('active');
+            };
 
-            // Diagnostic
-            console.log('Page scripts initialized');
+            window.hideLoading = function() {
+                $('#loadingOverlay').removeClass('active');
+            };
 
-            // Confirm delete actions (delegated to document to work with DataTables redraws)
-            $(document).on('click', '.btn-delete', function(e) {
-                if (!confirm('Are you sure you want to delete this item?')) {
-                    e.preventDefault();
-                }
-            });
-
-            // Plain JS fallback: delegated handler that works without jQuery
-            // This ensures basic functionality even when jQuery fails to load
-            (function() {
-                document.addEventListener('click', function(ev) {
-                    var el = ev.target.closest ? ev.target.closest('.btn-delete') : null;
-                    if (!el) return;
-                    if (!confirm('Are you sure you want to delete this item?')) {
-                        ev.preventDefault();
-                        ev.stopPropagation();
-                    }
-                }, false);
-            })();
-
-            // Form validation
-            $('form').on('submit', function() {
-                const requiredFields = $(this).find('[required]');
-                let isValid = true;
+            // Show loading on form submit
+            $('form').on('submit', function(e) {
+                const $form = $(this);
                 
-                requiredFields.each(function() {
-                    if (!$(this).val().trim()) {
-                        $(this).addClass('is-invalid');
-                        isValid = false;
-                    } else {
-                        $(this).removeClass('is-invalid');
+                // Don't show loading for search forms
+                if ($form.hasClass('no-loading')) {
+                    return true;
+                }
+
+                // Validate form first
+                if ($form[0].checkValidity() === false) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $form.addClass('was-validated');
+                    toastr.error('Please fill in all required fields correctly.', 'Validation Error');
+                    return false;
+                }
+
+                // Add loading state to submit button
+                const $submitBtn = $form.find('button[type="submit"]');
+                $submitBtn.addClass('btn-loading').prop('disabled', true);
+                
+                // Show overlay
+                showLoading();
+            });
+
+            // Show loading on AJAX requests
+            $(document).ajaxStart(function() {
+                showLoading();
+            }).ajaxStop(function() {
+                hideLoading();
+            });
+
+            // =================================================================
+            // DELETE CONFIRMATION MODAL
+            // =================================================================
+            let deleteUrl = '';
+            
+            $(document).on('click', '.btn-delete', function(e) {
+                e.preventDefault();
+                deleteUrl = $(this).attr('href') || $(this).data('url');
+                const itemName = $(this).data('item') || 'this item';
+                
+                $('#deleteConfirmMessage').text(`Are you sure you want to delete ${itemName}? This action cannot be undone.`);
+                $('#deleteConfirmModal').modal('show');
+            });
+
+            $('#confirmDeleteBtn').on('click', function() {
+                if (deleteUrl) {
+                    $('#deleteConfirmModal').modal('hide');
+                    showLoading();
+                    window.location.href = deleteUrl;
+                }
+            });
+
+            // =================================================================
+            // ENHANCED FORM VALIDATION
+            // =================================================================
+            $('form').each(function() {
+                const $form = $(this);
+                
+                $form.on('input change', 'input, textarea, select', function() {
+                    const $field = $(this);
+                    
+                    // Remove invalid class on input
+                    $field.removeClass('is-invalid');
+                    
+                    // Real-time validation
+                    if ($form.hasClass('was-validated')) {
+                        if ($field[0].checkValidity()) {
+                            $field.addClass('is-valid');
+                        } else {
+                            $field.addClass('is-invalid');
+                        }
                     }
                 });
-                
-                return isValid;
             });
 
-            // Remove validation classes on input
-            $('input, textarea, select').on('input change', function() {
-                $(this).removeClass('is-invalid');
+            // Email validation
+            $('input[type="email"]').on('blur', function() {
+                const $email = $(this);
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if ($email.val() && !emailPattern.test($email.val())) {
+                    $email.addClass('is-invalid');
+                    $email.siblings('.invalid-feedback').text('Please enter a valid email address.');
+                }
             });
+
+            // Password match validation
+            $('input[name="confirm_password"]').on('input', function() {
+                const $confirm = $(this);
+                const $password = $('input[name="new_password"]');
+                
+                if ($confirm.val() && $confirm.val() !== $password.val()) {
+                    $confirm.addClass('is-invalid');
+                    $confirm.siblings('.invalid-feedback').text('Passwords do not match.');
+                } else {
+                    $confirm.removeClass('is-invalid');
+                }
+            });
+
+            // =================================================================
+            // TOOLTIPS INITIALIZATION
+            // =================================================================
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Auto-initialize tooltips for icons
+            $('i.fas, i.far, i.fab').each(function() {
+                const $icon = $(this);
+                if (!$icon.parent().attr('data-bs-toggle') && $icon.attr('title')) {
+                    $icon.parent().attr('data-bs-toggle', 'tooltip');
+                    $icon.parent().attr('data-bs-placement', 'top');
+                    $icon.parent().attr('title', $icon.attr('title'));
+                    new bootstrap.Tooltip($icon.parent()[0]);
+                }
+            });
+
+            // =================================================================
+            // KEYBOARD NAVIGATION
+            // =================================================================
+            $(document).on('keydown', function(e) {
+                // Alt + D for Dashboard
+                if (e.altKey && e.key === 'd') {
+                    e.preventDefault();
+                    window.location.href = 'index.php?page=dashboard';
+                }
+
+                // Alt + P for Profile
+                if (e.altKey && e.key === 'p') {
+                    e.preventDefault();
+                    window.location.href = 'index.php?page=profile';
+                }
+
+                // Alt + L for Logout
+                if (e.altKey && e.key === 'l') {
+                    e.preventDefault();
+                    window.location.href = 'index.php?page=login&action=logout';
+                }
+
+                // Escape to close modals
+                if (e.key === 'Escape') {
+                    $('.modal').modal('hide');
+                }
+            });
+
+            // Navigate tables with arrow keys
+            $('.data-table tbody tr').on('keydown', function(e) {
+                const $row = $(this);
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    $row.next('tr').focus();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    $row.prev('tr').focus();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $row.find('a:first').click();
+                }
+            });
+
+            // Make table rows focusable
+            $('.data-table tbody tr').attr('tabindex', '0');
+
+            // =================================================================
+            // ONBOARDING TOUR (First-time users)
+            // =================================================================
+            window.startOnboardingTour = function() {
+                const userRole = '<?= $_SESSION['role'] ?? '' ?>';
+                
+                if (userRole === 'intern') {
+                    introJs().setOptions({
+                        steps: [
+                            {
+                                intro: "Welcome to the Parliament Intern Logbook System! Let's take a quick tour."
+                            },
+                            {
+                                element: document.querySelector('.sidebar'),
+                                intro: "This is your navigation menu. Use it to access different sections of the system.",
+                                position: 'right'
+                            },
+                            {
+                                element: document.querySelector('.stats-card:first-child'),
+                                intro: "These cards show your key statistics at a glance.",
+                                position: 'bottom'
+                            },
+                            {
+                                element: document.querySelector('a[href*="addLog"]'),
+                                intro: "Click here to add your daily activity logs. Remember, you can edit them within 24 hours!",
+                                position: 'bottom'
+                            },
+                            {
+                                element: document.querySelector('#userDropdown'),
+                                intro: "Access your profile, settings, and logout from here.",
+                                position: 'left'
+                            }
+                        ],
+                        showProgress: true,
+                        showBullets: true,
+                        exitOnOverlayClick: false,
+                        doneLabel: 'Get Started!'
+                    }).start();
+                } else if (userRole === 'supervisor') {
+                    introJs().setOptions({
+                        steps: [
+                            {
+                                intro: "Welcome, Supervisor! Let's explore your dashboard."
+                            },
+                            {
+                                element: document.querySelector('.sidebar'),
+                                intro: "Navigate between Interns, Logs, Evaluations, and Reports from here.",
+                                position: 'right'
+                            },
+                            {
+                                element: document.querySelector('.stats-card:first-child'),
+                                intro: "Monitor your assigned interns and pending reviews at a glance.",
+                                position: 'bottom'
+                            }
+                        ],
+                        showProgress: true,
+                        doneLabel: 'Got it!'
+                    }).start();
+                } else if (userRole === 'admin') {
+                    introJs().setOptions({
+                        steps: [
+                            {
+                                intro: "Welcome, Administrator! Here's your system overview."
+                            },
+                            {
+                                element: document.querySelector('.sidebar'),
+                                intro: "Manage users, view reports, and configure the system from the sidebar.",
+                                position: 'right'
+                            }
+                        ],
+                        showProgress: true,
+                        doneLabel: 'Start Managing!'
+                    }).start();
+                }
+            };
+
+            // Check if user is new (you can store this in session/cookie)
+            if (!localStorage.getItem('tourCompleted_<?= $_SESSION['user_id'] ?? '' ?>')) {
+                // Uncomment to auto-start tour for new users
+                // setTimeout(startOnboardingTour, 1000);
+            }
+
+            // Add tour button to help menu
+            if ($('.navbar').length) {
+                $('.navbar-nav').append(`
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="startOnboardingTour(); return false;" 
+                           data-bs-toggle="tooltip" title="Start Tutorial (Alt+T)">
+                            <i class="fas fa-question-circle"></i>
+                        </a>
+                    </li>
+                `);
+            }
+
+            // Alt + T for Tour
+            $(document).on('keydown', function(e) {
+                if (e.altKey && e.key === 't') {
+                    e.preventDefault();
+                    startOnboardingTour();
+                }
+            });
+
+            // Mark tour as completed
+            introJs().oncomplete(function() {
+                localStorage.setItem('tourCompleted_<?= $_SESSION['user_id'] ?? '' ?>', 'true');
+            });
+
+            // =================================================================
+            // DIAGNOSTIC
+            // =================================================================
+            console.log('Enhanced UX features initialized');
+            console.log('Keyboard shortcuts: Alt+D (Dashboard), Alt+P (Profile), Alt+L (Logout), Alt+T (Tour)');
+
         });
     </script>
 </body>

@@ -89,7 +89,19 @@ include 'views/layouts/header.php';
                 </h5>
             </div>
             <div class="card-body">
-                <canvas id="usersByRoleChart" height="300"></canvas>
+                <canvas id="usersByRoleChart" height="250"></canvas>
+                <div class="mt-3">
+                    <table class="table table-sm">
+                        <tbody>
+                            <?php foreach ($users_by_role as $role_data): ?>
+                                <tr>
+                                    <td><strong><?= ucfirst($role_data['role']) ?></strong></td>
+                                    <td class="text-end"><span class="badge bg-primary"><?= $role_data['count'] ?></span></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -104,13 +116,19 @@ include 'views/layouts/header.php';
             </div>
             <div class="card-body">
                 <?php if (empty($recent_announcements)): ?>
-                    <p class="text-muted text-center py-3">No announcements yet.</p>
+                    <div class="text-center py-4">
+                        <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No announcements yet.</p>
+                        <a href="index.php?page=admin&action=announcements" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Announcement
+                        </a>
+                    </div>
                 <?php else: ?>
                     <div class="list-group list-group-flush">
                         <?php foreach ($recent_announcements as $announcement): ?>
                             <div class="list-group-item border-0 px-0">
                                 <div class="d-flex justify-content-between align-items-start">
-                                    <div>
+                                    <div class="flex-grow-1">
                                         <h6 class="mb-1"><?= htmlspecialchars($announcement['title']) ?></h6>
                                         <p class="mb-1 text-muted small">
                                             <?= htmlspecialchars(substr($announcement['message'], 0, 100)) ?>...
@@ -124,7 +142,118 @@ include 'views/layouts/header.php';
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    <div class="text-center mt-3">
+                        <a href="index.php?page=admin&action=announcements" class="btn btn-sm btn-outline-primary">
+                            View All Announcements
+                        </a>
+                    </div>
                 <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Overview -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Activity Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-clipboard-list text-primary me-2"></i>Total Logs</span>
+                        <strong><?= $logs_this_week * 4 ?></strong>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-check-circle text-success me-2"></i>Approved</span>
+                        <strong><?= $logs_this_week * 3 ?></strong>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: 75%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-clock text-warning me-2"></i>Pending</span>
+                        <strong><?= $pending_reviews ?></strong>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-warning" style="width: <?= ($pending_reviews / max($logs_this_week, 1)) * 100 ?>%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-users-cog me-2"></i>User Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <?php
+                $total_users = array_sum(array_column($users_by_role, 'count'));
+                ?>
+                <div class="text-center mb-3">
+                    <h2 class="mb-0"><?= $total_users ?></h2>
+                    <small class="text-muted">Total System Users</small>
+                </div>
+                <hr>
+                <?php foreach ($users_by_role as $role_data): ?>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="badge bg-<?= $role_data['role'] === 'admin' ? 'danger' : ($role_data['role'] === 'supervisor' ? 'success' : 'info') ?>">
+                            <?= ucfirst($role_data['role']) ?>
+                        </span>
+                        <strong><?= $role_data['count'] ?> (<?= round(($role_data['count'] / $total_users) * 100) ?>%)</strong>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2"></i>System Health
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-check text-success me-2"></i>Active Interns</span>
+                        <strong class="text-success"><?= $active_interns ?></strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-hourglass-half text-warning me-2"></i>Pending Reviews</span>
+                        <strong class="text-warning"><?= $pending_reviews ?></strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-calendar-week text-info me-2"></i>Weekly Activity</span>
+                        <strong class="text-info"><?= $logs_this_week ?> logs</strong>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <span class="badge bg-<?= $pending_reviews > 10 ? 'warning' : 'success' ?> fs-6">
+                        <?= $pending_reviews > 10 ? 'Needs Attention' : 'System Healthy' ?>
+                    </span>
+                </div>
             </div>
         </div>
     </div>

@@ -23,7 +23,7 @@ class ProfileController {
         try {
             // Get user data
             $stmt = $this->db->prepare("
-                SELECT id, name, email, role, created_at 
+                SELECT id, name, email, role, profile_picture, created_at 
                 FROM users 
                 WHERE id = ?
             ");
@@ -138,6 +138,96 @@ class ProfileController {
                 setFlashMessage('success', 'Profile updated successfully.');
             } catch (Exception $e) {
                 setFlashMessage('error', 'Failed to update profile. Please try again.');
+            }
+        }
+
+        header('Location: index.php?page=profile');
+        exit;
+    }
+
+    /**
+     * Upload profile picture
+     */
+    public function uploadPicture() {
+        requireAuth();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $csrf_token = $_POST['csrf_token'] ?? '';
+
+            if (!verifyCSRFToken($csrf_token)) {
+                setFlashMessage('error', 'Invalid request. Please try again.');
+                header('Location: index.php?page=profile');
+                exit;
+            }
+
+            if (!isset($_FILES['profile_picture']) || $_FILES['profile_picture']['error'] === UPLOAD_ERR_NO_FILE) {
+                setFlashMessage('error', 'Please select a file to upload.');
+                header('Location: index.php?page=profile');
+                exit;
+            }
+
+            $file = $_FILES['profile_picture'];
+
+            // Check for upload errors
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                setFlashMessage('error', 'File upload failed. Please try again.');
+                header('Location: index.php?page=profile');
+                exit;
+            }
+
+            // Validate file type
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime_type = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+
+            if (!in_array($mime_type, $allowed_types)) {
+                setFlashMessage('error', 'Invalid file type. Only JPG, PNG, and GIF are allowed.');
+                header('Location: index.php?page=profile');
+                exit;
+            }
+
+            // Validate file size (max 2MB)
+            if ($file['size'] > 2 * 1024 * 1024) {
+                setFlashMessage('error', 'File size must be less than 2MB.');
+                header('Location: index.php?page=profile');
+                exit;
+            }
+
+            try {
+                $user_id = $_SESSION['user_id'];
+
+                // Get old profile picture
+                $stmt = $this->db->prepare("SELECT profile_picture FROM users WHERE id = ?");
+                $stmt->execute([$user_id]);
+                $old_picture = $stmt->fetch()['profile_picture'];
+
+                // Generate unique filename
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = 'profile_' . $user_id . '_' . time() . '.' . $extension;
+                $upload_path = __DIR__ . '/../uploads/profile_pictures/' . $filename;
+
+                // Move uploaded file
+                if (!move_uploaded_file($file['tmp_name'], $upload_path)) {
+                    setFlashMessage('error', 'Failed to save uploaded file.');
+                    header('Location: index.php?page=profile');
+                    exit;
+                }
+
+                // Delete old profile picture if exists
+                if ($old_picture && file_exists(__DIR__ . '/../' . $old_picture)) {
+                    unlink(__DIR__ . '/../' . $old_picture);
+                }
+
+                // Update database
+                $db_path = 'uploads/profile_pictures/' . $filename;
+                $stmt = $this->db->prepare("UPDATE users SET profile_picture = ? WHERE id = ?");
+                $stmt->execute([$db_path, $user_id]);
+
+                logActivity($user_id, 'profile_picture_updated', 'Profile picture uploaded');
+                setFlashMessage('success', 'Profile picture updated successfully.');
+            } catch (Exception $e) {
+                setFlashMessage('error', 'Failed to update profile picture. Please try again.');
             }
         }
 

@@ -180,19 +180,19 @@ include 'views/layouts/header.php';
 <?php if ($profile): ?>
 <div class="row mt-4">
     <!-- Profile Information -->
-    <div class="col-md-12">
+    <div class="col-md-6">
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-user me-2"></i>Profile Information
+                    <i class="fas fa-user me-2"></i>My Profile
                 </h5>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
+                    <div class="col-md-12">
+                        <table class="table table-borderless mb-0">
                             <tr>
-                                <td><strong>Name:</strong></td>
+                                <td width="40%"><strong>Name:</strong></td>
                                 <td><?= htmlspecialchars($_SESSION['name']) ?></td>
                             </tr>
                             <tr>
@@ -201,16 +201,12 @@ include 'views/layouts/header.php';
                             </tr>
                             <tr>
                                 <td><strong>Department:</strong></td>
-                                <td><?= getDepartmentName($profile['department']) ?></td>
+                                <td><span class="badge bg-info"><?= getDepartmentName($profile['department']) ?></span></td>
                             </tr>
                             <tr>
                                 <td><strong>Supervisor:</strong></td>
                                 <td><?= htmlspecialchars($profile['supervisor_name']) ?></td>
                             </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
                             <tr>
                                 <td><strong>Start Date:</strong></td>
                                 <td><?= formatDate($profile['start_date']) ?></td>
@@ -241,6 +237,94 @@ include 'views/layouts/header.php';
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Summary -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Performance Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <?php if (!empty($recent_evaluations)): ?>
+                    <?php
+                    $total_evals = count($recent_evaluations);
+                    $avg_technical = array_sum(array_column($recent_evaluations, 'rating_technical')) / $total_evals;
+                    $avg_softskills = array_sum(array_column($recent_evaluations, 'rating_softskills')) / $total_evals;
+                    $avg_overall = ($avg_technical + $avg_softskills) / 2;
+                    
+                    $total_logs_count = count($recent_logs);
+                    $approved_logs = count(array_filter($recent_logs, function($log) {
+                        return $log['status'] === 'approved';
+                    }));
+                    $approval_rate = $total_logs_count > 0 ? ($approved_logs / $total_logs_count) * 100 : 0;
+                    ?>
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <h4 class="text-primary mb-1"><?= number_format($avg_technical, 1) ?></h4>
+                            <small class="text-muted">Technical</small>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-primary" style="width: <?= ($avg_technical/5)*100 ?>%"></div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="text-success mb-1"><?= number_format($avg_softskills, 1) ?></h4>
+                            <small class="text-muted">Soft Skills</small>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: <?= ($avg_softskills/5)*100 ?>%"></div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="text-info mb-1"><?= number_format($avg_overall, 1) ?></h4>
+                            <small class="text-muted">Overall</small>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-info" style="width: <?= ($avg_overall/5)*100 ?>%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-trophy text-warning me-2"></i>Performance Level</span>
+                            <strong>
+                                <span class="badge bg-<?= $avg_overall >= 4 ? 'success' : ($avg_overall >= 3 ? 'info' : 'warning') ?>">
+                                    <?php
+                                    if ($avg_overall >= 4.5) echo 'Excellent';
+                                    elseif ($avg_overall >= 3.5) echo 'Very Good';
+                                    elseif ($avg_overall >= 2.5) echo 'Good';
+                                    else echo 'Needs Improvement';
+                                    ?>
+                                </span>
+                            </strong>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-check-circle text-success me-2"></i>Log Approval Rate</span>
+                            <strong><?= round($approval_rate) ?>%</strong>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-<?= $approval_rate >= 80 ? 'success' : ($approval_rate >= 60 ? 'warning' : 'danger') ?>" 
+                                 style="width: <?= $approval_rate ?>%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span><i class="fas fa-clipboard-check text-info me-2"></i>Total Evaluations</span>
+                            <strong><?= $total_evals ?></strong>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No performance data available yet.</p>
+                        <small class="text-muted">Your supervisor will evaluate your performance weekly.</small>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
