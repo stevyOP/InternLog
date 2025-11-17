@@ -40,6 +40,10 @@ switch ($page) {
         include 'controllers/AdminController.php';
         $controller = new AdminController();
         break;
+    case 'profile':
+        include 'controllers/ProfileController.php';
+        $controller = new ProfileController();
+        break;
     default:
         header('Location: index.php?page=login');
         exit;

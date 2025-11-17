@@ -262,16 +262,10 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item" href="index.php?page=dashboard">
-                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                <a class="dropdown-item" href="index.php?page=profile">
+                                    <i class="fas fa-user me-2"></i>My Profile
                                 </a>
                             </li>
-                            <li>
-                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                                    <i class="fas fa-key me-2"></i>Change Password
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="index.php?page=login&action=logout">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
