@@ -298,8 +298,17 @@
                         <?php endif; ?>
                         
                         <?php if ($_SESSION['role'] === 'supervisor'): ?>
-                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'supervisor' ? 'active' : '' ?>" href="index.php?page=supervisor">
+                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'supervisor' && ($_GET['action'] ?? 'interns') === 'interns' ? 'active' : '' ?>" href="index.php?page=supervisor&action=interns">
                                 <i class="fas fa-users me-2"></i>My Interns
+                            </a>
+                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'supervisor' && ($_GET['action'] ?? '') === 'logs' ? 'active' : '' ?>" href="index.php?page=supervisor&action=logs">
+                                <i class="fas fa-clipboard-list me-2"></i>Review Logs
+                            </a>
+                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'supervisor' && ($_GET['action'] ?? '') === 'evaluations' ? 'active' : '' ?>" href="index.php?page=supervisor&action=evaluations">
+                                <i class="fas fa-star me-2"></i>Evaluations
+                            </a>
+                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'supervisor' && ($_GET['action'] ?? '') === 'reports' ? 'active' : '' ?>" href="index.php?page=supervisor&action=reports">
+                                <i class="fas fa-chart-bar me-2"></i>Reports
                             </a>
                         <?php endif; ?>
                         

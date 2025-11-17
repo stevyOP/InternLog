@@ -42,10 +42,17 @@ include 'views/layouts/header.php';
 
                     <div class="mb-3">
                         <label for="email" class="form-label">
-                            <i class="fas fa-envelope me-2"></i>Email Address *
+                            <i class="fas fa-envelope me-2"></i>Email Address
                         </label>
-                        <input type="email" class="form-control" id="email" name="email" 
-                               value="<?= htmlspecialchars($user['email']) ?>" required>
+                        <?php if ($user['role'] === 'admin'): ?>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="<?= htmlspecialchars($user['email']) ?>" required>
+                            <div class="form-text">You can update your email address.</div>
+                        <?php else: ?>
+                            <input type="email" class="form-control" 
+                                   value="<?= htmlspecialchars($user['email']) ?>" readonly disabled>
+                            <div class="form-text">Email address can only be changed by administrators.</div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="mb-3">

@@ -16,8 +16,7 @@ class SupervisorController {
      * Display supervisor dashboard (redirected from main dashboard)
      */
     public function index() {
-        header('Location: index.php?page=dashboard');
-        exit;
+        $this->interns();
     }
 
     /**
@@ -31,14 +30,18 @@ class SupervisorController {
         try {
             $stmt = $this->db->prepare("
                 SELECT ip.*, u.name as intern_name, u.email as intern_email,
-                       COUNT(dl.id) as total_logs,
-                       COUNT(CASE WHEN dl.status = 'pending' THEN 1 END) as pending_logs,
-                       COUNT(CASE WHEN dl.status = 'approved' THEN 1 END) as approved_logs
+                       COUNT(DISTINCT dl.id) as total_logs,
+                       COUNT(DISTINCT CASE WHEN dl.status = 'pending' THEN dl.id END) as pending_logs,
+                       COUNT(DISTINCT CASE WHEN dl.status = 'approved' THEN dl.id END) as approved_logs,
+                       COUNT(DISTINCT e.id) as total_evaluations,
+                       AVG(e.rating_technical) as avg_technical,
+                       AVG(e.rating_softskills) as avg_softskills
                 FROM intern_profiles ip
                 JOIN users u ON ip.user_id = u.id
                 LEFT JOIN daily_logs dl ON ip.user_id = dl.intern_id
+                LEFT JOIN evaluations e ON ip.user_id = e.intern_id
                 WHERE ip.supervisor_id = ?
-                GROUP BY ip.id
+                GROUP BY ip.id, ip.user_id, ip.department, ip.supervisor_id, ip.start_date, ip.end_date, ip.status, ip.created_at, u.name, u.email
                 ORDER BY ip.status, u.name
             ");
             $stmt->execute([$user_id]);

@@ -68,7 +68,6 @@ class ProfileController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user_id = $_SESSION['user_id'];
             $name = sanitize($_POST['name'] ?? '');
-            $email = sanitize($_POST['email'] ?? '');
             $csrf_token = $_POST['csrf_token'] ?? '';
 
             if (!verifyCSRFToken($csrf_token)) {
@@ -77,39 +76,63 @@ class ProfileController {
                 exit;
             }
 
-            if (empty($name) || empty($email)) {
-                setFlashMessage('error', 'Name and email are required.');
-                header('Location: index.php?page=profile');
-                exit;
-            }
-
-            if (!isValidEmail($email)) {
-                setFlashMessage('error', 'Invalid email address.');
+            if (empty($name)) {
+                setFlashMessage('error', 'Name is required.');
                 header('Location: index.php?page=profile');
                 exit;
             }
 
             try {
-                // Check if email is already taken by another user
-                $stmt = $this->db->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
-                $stmt->execute([$email, $user_id]);
-                if ($stmt->fetch()) {
-                    setFlashMessage('error', 'Email address is already in use.');
-                    header('Location: index.php?page=profile');
-                    exit;
+                // Check if user is admin and can update email
+                $isAdmin = $_SESSION['role'] === 'admin';
+                
+                if ($isAdmin) {
+                    $email = sanitize($_POST['email'] ?? '');
+                    
+                    if (empty($email)) {
+                        setFlashMessage('error', 'Email is required.');
+                        header('Location: index.php?page=profile');
+                        exit;
+                    }
+
+                    if (!isValidEmail($email)) {
+                        setFlashMessage('error', 'Invalid email address.');
+                        header('Location: index.php?page=profile');
+                        exit;
+                    }
+
+                    // Check if email is already taken by another user
+                    $stmt = $this->db->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+                    $stmt->execute([$email, $user_id]);
+                    if ($stmt->fetch()) {
+                        setFlashMessage('error', 'Email address is already in use.');
+                        header('Location: index.php?page=profile');
+                        exit;
+                    }
+
+                    // Update user profile with email
+                    $stmt = $this->db->prepare("
+                        UPDATE users 
+                        SET name = ?, email = ?, updated_at = NOW() 
+                        WHERE id = ?
+                    ");
+                    $stmt->execute([$name, $email, $user_id]);
+
+                    // Update session
+                    $_SESSION['name'] = $name;
+                    $_SESSION['email'] = $email;
+                } else {
+                    // Update only name for non-admin users
+                    $stmt = $this->db->prepare("
+                        UPDATE users 
+                        SET name = ?, updated_at = NOW() 
+                        WHERE id = ?
+                    ");
+                    $stmt->execute([$name, $user_id]);
+
+                    // Update session
+                    $_SESSION['name'] = $name;
                 }
-
-                // Update user profile
-                $stmt = $this->db->prepare("
-                    UPDATE users 
-                    SET name = ?, email = ?, updated_at = NOW() 
-                    WHERE id = ?
-                ");
-                $stmt->execute([$name, $email, $user_id]);
-
-                // Update session
-                $_SESSION['name'] = $name;
-                $_SESSION['email'] = $email;
 
                 logActivity($user_id, 'profile_updated', 'Profile information updated');
                 setFlashMessage('success', 'Profile updated successfully.');
