@@ -1051,8 +1051,23 @@
                         <?php endif; ?>
                         
                         <?php if ($_SESSION['role'] === 'admin'): ?>
+                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'dashboard' ? 'active' : '' ?>" href="index.php?page=dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
                             <a class="nav-link <?= ($_GET['page'] ?? '') === 'admin' ? 'active' : '' ?>" href="index.php?page=admin">
                                 <i class="fas fa-cogs me-2"></i>Administration
+                            </a>
+                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'intern' && ($_GET['action'] ?? 'logs') === 'logs' ? 'active' : '' ?>" href="index.php?page=intern&action=logs">
+                                <i class="fas fa-clipboard-list me-2"></i>Daily Logs
+                            </a>
+                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'intern' && ($_GET['action'] ?? '') === 'evaluations' ? 'active' : '' ?>" href="index.php?page=intern&action=evaluations">
+                                <i class="fas fa-star me-2"></i>Evaluations
+                            </a>
+                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'supervisor' && ($_GET['action'] ?? 'interns') === 'interns' ? 'active' : '' ?>" href="index.php?page=supervisor&action=interns">
+                                <i class="fas fa-users me-2"></i>Interns
+                            </a>
+                            <a class="nav-link <?= ($_GET['page'] ?? '') === 'supervisor' && ($_GET['action'] ?? '') === 'reports' ? 'active' : '' ?>" href="index.php?page=supervisor&action=reports">
+                                <i class="fas fa-chart-bar me-2"></i>Reports
                             </a>
                         <?php endif; ?>
                     </nav>

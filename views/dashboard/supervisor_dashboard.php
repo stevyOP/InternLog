@@ -23,6 +23,25 @@ include 'views/layouts/header.php';
     </div>
 </div>
 
+<!-- Beta Tester Welcome Notice -->
+<div class="beta-notice-banner">
+    <h5>
+        <i class="fas fa-star"></i>
+        Thank You for Being a Beta Tester!
+    </h5>
+    <p>
+        <strong>Welcome to the Parliament Intern Logbook System Beta Testing Program!</strong> 
+        As a supervisor, your feedback on the review and evaluation workflow is crucial. Please test all features and report any issues.
+        <br><br>
+        <strong>What's New in Beta v0.9.5:</strong> Enhanced profile dropdown, modern settings page, improved navigation, and better UI responsiveness.
+        <br>
+        <strong>Expected Stable Release:</strong> February 2025
+    </p>
+    <button class="btn btn-feedback" onclick="window.location.href='mailto:itsupport@parliament.lk?subject=Beta Feedback - Intern Logbook (Supervisor)'">
+        <i class="fas fa-comment-dots me-2"></i>Send Feedback
+    </button>
+</div>
+
 <!-- Statistics Cards -->
 <div class="row mb-4">
     <div class="col-md-3">

@@ -26,6 +26,20 @@ function hasRole($role) {
 }
 
 /**
+ * Check if user has role or is admin
+ */
+function hasRoleOrAdmin($role) {
+    return isset($_SESSION['role']) && ($_SESSION['role'] === $role || $_SESSION['role'] === 'admin');
+}
+
+/**
+ * Check if user is admin
+ */
+function isAdmin() {
+    return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+}
+
+/**
  * Redirect to login if not authenticated
  */
 function requireAuth() {
@@ -36,11 +50,11 @@ function requireAuth() {
 }
 
 /**
- * Redirect if user doesn't have required role
+ * Redirect if user doesn't have required role (admin always has access)
  */
 function requireRole($role) {
     requireAuth();
-    if (!hasRole($role)) {
+    if (!hasRole($role) && !isAdmin()) {
         header('Location: index.php?page=dashboard');
         exit;
     }

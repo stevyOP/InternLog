@@ -23,6 +23,90 @@ include 'views/layouts/header.php';
     </div>
 </div>
 
+<!-- Beta Tester Welcome Notice -->
+<div class="beta-notice-banner">
+    <h5>
+        <i class="fas fa-star"></i>
+        Thank You for Being a Beta Tester!
+    </h5>
+    <p>
+        <strong>Welcome to the Parliament Intern Logbook System Beta Testing Program!</strong> 
+        As an administrator, you have access to all system features. Please test all modules thoroughly and report any issues or suggestions.
+        <br><br>
+        <strong>What's New in Beta v0.9.5:</strong> Enhanced profile dropdown, modern settings page, improved navigation, and better UI responsiveness.
+        <br>
+        <strong>Expected Stable Release:</strong> February 2025
+    </p>
+    <button class="btn btn-feedback" onclick="window.location.href='mailto:itsupport@parliament.lk?subject=Beta Feedback - Intern Logbook (Admin)'">
+        <i class="fas fa-comment-dots me-2"></i>Send Feedback
+    </button>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="index.php?page=admin&action=users" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-users-cog fa-2x d-block mb-2"></i>
+                            <span>Manage Users</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="index.php?page=intern&action=logs" class="btn btn-outline-success w-100 py-3">
+                            <i class="fas fa-clipboard-list fa-2x d-block mb-2"></i>
+                            <span>View All Logs</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="index.php?page=supervisor&action=interns" class="btn btn-outline-warning w-100 py-3">
+                            <i class="fas fa-users fa-2x d-block mb-2"></i>
+                            <span>Interns</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="index.php?page=supervisor&action=reports" class="btn btn-outline-info w-100 py-3">
+                            <i class="fas fa-chart-bar fa-2x d-block mb-2"></i>
+                            <span>Reports</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="index.php?page=intern&action=addLog" class="btn btn-outline-danger w-100 py-3">
+                            <i class="fas fa-plus fa-2x d-block mb-2"></i>
+                            <span>Add Daily Log</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="index.php?page=intern&action=evaluations" class="btn btn-outline-secondary w-100 py-3">
+                            <i class="fas fa-star fa-2x d-block mb-2"></i>
+                            <span>Evaluations</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="index.php?page=profile" class="btn btn-outline-dark w-100 py-3">
+                            <i class="fas fa-user fa-2x d-block mb-2"></i>
+                            <span>My Profile</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <a href="index.php?page=profile&action=settings" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-cog fa-2x d-block mb-2"></i>
+                            <span>Settings</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Statistics Cards -->
 <div class="row mb-4">
     <div class="col-md-3">
