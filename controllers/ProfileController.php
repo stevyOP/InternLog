@@ -298,5 +298,15 @@ class ProfileController {
         header('Location: index.php?page=profile');
         exit;
     }
+
+    /**
+     * Display settings page
+     */
+    public function settings() {
+        requireAuth();
+        
+        // Include settings view
+        include 'views/profile/settings.php';
+    }
 }
 ?>

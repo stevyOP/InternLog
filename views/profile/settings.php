@@ -319,38 +319,46 @@ $active_sessions = [
 
 <!-- Notification Settings -->
 <div class="settings-section">
-    <h3><i class="fas fa-bell"></i> Notification Settings</h3>
+    <h3>
+        <i class="fas fa-bell"></i> Notification Settings
+        <span class="badge bg-warning text-dark ms-2">Coming Soon</span>
+    </h3>
     <p class="text-muted mb-4">Manage how you receive notifications from the system</p>
     
-    <div class="setting-item">
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Feature Under Development:</strong> Email notification settings will be available in the next update. Stay tuned!
+    </div>
+    
+    <div class="setting-item" style="opacity: 0.5; pointer-events: none;">
         <div>
             <div class="setting-label">Supervisor Comments</div>
             <div class="setting-description">Receive email alerts when your supervisor adds comments to your logs</div>
         </div>
         <label class="toggle-switch">
-            <input type="checkbox" checked>
+            <input type="checkbox" disabled>
             <span class="toggle-slider"></span>
         </label>
     </div>
     
-    <div class="setting-item">
+    <div class="setting-item" style="opacity: 0.5; pointer-events: none;">
         <div>
             <div class="setting-label">Log Approval Status</div>
             <div class="setting-description">Get notified when your daily logs are approved or rejected</div>
         </div>
         <label class="toggle-switch">
-            <input type="checkbox" checked>
+            <input type="checkbox" disabled>
             <span class="toggle-slider"></span>
         </label>
     </div>
     
-    <div class="setting-item">
+    <div class="setting-item" style="opacity: 0.5; pointer-events: none;">
         <div>
             <div class="setting-label">Daily Log Reminders</div>
             <div class="setting-description">Receive reminder emails if you haven't submitted your daily log</div>
         </div>
         <label class="toggle-switch">
-            <input type="checkbox">
+            <input type="checkbox" disabled>
             <span class="toggle-slider"></span>
         </label>
     </div>
@@ -388,76 +396,21 @@ $active_sessions = [
 
 <!-- Activity Log -->
 <div class="settings-section">
-    <h3><i class="fas fa-history"></i> Activity Log</h3>
+    <h3>
+        <i class="fas fa-history"></i> Activity Log
+        <span class="badge bg-warning text-dark ms-2">Coming Soon</span>
+    </h3>
     <p class="text-muted mb-4">Recent account activities and security events</p>
     
-    <?php foreach ($user_activities as $activity): ?>
-    <div class="activity-item">
-        <div class="activity-icon">
-            <i class="fas fa-<?= 
-                $activity['action'] === 'Logged in' ? 'sign-in-alt' : 
-                ($activity['action'] === 'Submitted daily log' ? 'clipboard-check' : 
-                ($activity['action'] === 'Updated profile picture' ? 'image' : 
-                ($activity['action'] === 'Changed password' ? 'key' : 'sign-out-alt'))) 
-            ?>"></i>
-        </div>
-        <div class="activity-content">
-            <div class="activity-action"><?= htmlspecialchars($activity['action']) ?></div>
-            <div class="activity-meta">
-                <i class="fas fa-clock me-1"></i><?= $activity['timestamp'] ?>
-                <span class="mx-2">•</span>
-                <i class="fas fa-network-wired me-1"></i><?= $activity['ip'] ?>
-            </div>
-        </div>
-    </div>
-    <?php endforeach; ?>
-    
-    <div class="text-center mt-3">
-        <button class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-history me-2"></i>View Full Activity History
-        </button>
-    </div>
-</div>
-
-<!-- Device & Session Management -->
-<div class="settings-section">
-    <h3><i class="fas fa-laptop"></i> Active Sessions</h3>
-    <p class="text-muted mb-4">Devices currently logged into your account</p>
-    
-    <?php foreach ($active_sessions as $session): ?>
-    <div class="session-card <?= $session['current'] ? 'current' : '' ?>">
-        <div class="session-icon">
-            <i class="fas fa-<?= strpos($session['device'], 'Windows') !== false ? 'desktop' : 'mobile-alt' ?>"></i>
-        </div>
-        <div class="session-info">
-            <div class="session-device">
-                <?= htmlspecialchars($session['device']) ?>
-                <?php if ($session['current']): ?>
-                    <span class="badge bg-success ms-2">Current Session</span>
-                <?php endif; ?>
-            </div>
-            <div class="session-meta">
-                <i class="fas fa-map-marker-alt me-1"></i><?= $session['location'] ?>
-                <span class="mx-2">•</span>
-                <i class="fas fa-clock me-1"></i><?= $session['last_active'] ?>
-            </div>
-        </div>
-        <?php if (!$session['current']): ?>
-        <button class="btn btn-outline-danger btn-sm">
-            <i class="fas fa-sign-out-alt me-1"></i>Revoke
-        </button>
-        <?php endif; ?>
-    </div>
-    <?php endforeach; ?>
-    
-    <div class="alert alert-warning mt-3">
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        <strong>Security Tip:</strong> If you see an unfamiliar session, log out of all devices immediately and change your password.
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Feature Under Development:</strong> Detailed activity logging will be available in the next update. This will include comprehensive tracking of all your account activities.
     </div>
     
-    <button class="btn btn-danger w-100">
-        <i class="fas fa-power-off me-2"></i>Log Out of All Devices
-    </button>
+    <div class="text-center py-5" style="opacity: 0.3;">
+        <i class="fas fa-history" style="font-size: 4rem; color: #7A0000;"></i>
+        <p class="mt-3 text-muted">Activity log data will appear here</p>
+    </div>
 </div>
 
 <!-- Help & Support -->
@@ -538,23 +491,51 @@ $active_sessions = [
     <h3><i class="fas fa-info-circle"></i> About System</h3>
     <p class="text-muted mb-4">System information and credits</p>
     
+    <div class="alert alert-warning">
+        <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-flask me-2" style="font-size: 1.5rem;"></i>
+            <div>
+                <strong>Beta Testing Version</strong>
+                <p class="mb-0 small">Thank you for enrolling in our beta testing program. Your feedback helps us create a better experience!</p>
+            </div>
+        </div>
+    </div>
+    
     <div class="row">
         <div class="col-md-6 mb-3">
             <div class="setting-item">
                 <div>
                     <div class="setting-label">System Version</div>
-                    <div class="setting-description">v1.2.0 (Stable)</div>
+                    <div class="setting-description">v0.9.5 (Beta)</div>
                 </div>
-                <span class="badge bg-success">Latest</span>
+                <span class="badge bg-warning text-dark">Beta</span>
             </div>
         </div>
         <div class="col-md-6 mb-3">
             <div class="setting-item">
                 <div>
                     <div class="setting-label">Last Updated</div>
-                    <div class="setting-description">January 15, 2025</div>
+                    <div class="setting-description">November 18, 2024</div>
                 </div>
                 <i class="fas fa-calendar-check text-primary" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Beta Testing Period</div>
+                    <div class="setting-description">Nov 2024 - Feb 2025</div>
+                </div>
+                <i class="fas fa-clock text-warning" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Stable Release</div>
+                    <div class="setting-description">Expected: February 2025</div>
+                </div>
+                <i class="fas fa-rocket text-success" style="font-size: 1.5rem;"></i>
             </div>
         </div>
     </div>
@@ -564,10 +545,31 @@ $active_sessions = [
             <i class="fas fa-code me-2"></i>Development Team
         </div>
         <div class="info-box-content">
-            <strong>Parliament Intern Logbook System</strong><br>
+            <strong>Parliament Intern Logbook System (Beta)</strong><br>
             Developed by IT Division, Parliament of Sri Lanka<br>
             In collaboration with the Intern Development Team<br>
-            © 2025 Parliament of Sri Lanka. All rights reserved.
+            <br>
+            <strong>Beta Testers:</strong> Current Parliament Interns 2024/2025<br>
+            © 2024 Parliament of Sri Lanka. All rights reserved.
+        </div>
+    </div>
+    
+    <div class="info-box">
+        <div class="info-box-title">
+            <i class="fas fa-hands-helping me-2"></i>Beta Testing Participation
+        </div>
+        <div class="info-box-content">
+            <strong>Thank you for being part of our beta testing program!</strong> Your participation is crucial in helping us identify bugs, improve features, and enhance the overall user experience before the official launch.
+            <br><br>
+            <strong>How to help:</strong>
+            <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
+                <li>Report any bugs or issues you encounter</li>
+                <li>Suggest new features or improvements</li>
+                <li>Share your honest feedback about the system</li>
+                <li>Test all available features thoroughly</li>
+            </ul>
+            <br>
+            Please send all feedback to: <a href="mailto:itsupport@parliament.lk?subject=Beta Feedback - Intern Logbook" class="text-primary">itsupport@parliament.lk</a>
         </div>
     </div>
     
@@ -576,11 +578,18 @@ $active_sessions = [
             <i class="fas fa-shield-alt me-2"></i>Data Privacy & Security
         </div>
         <div class="info-box-content">
-            Your data is protected under the Sri Lankan Data Protection Act. All information submitted through this system is encrypted and stored securely. We do not share your personal information with third parties. For more details, read our <a href="#" class="text-primary">Privacy Policy</a> and <a href="#" class="text-primary">Terms of Service</a>.
+            Your data is protected under the Sri Lankan Data Protection Act. All information submitted through this system is encrypted and stored securely. We do not share your personal information with third parties. 
+            <br><br>
+            <strong>Beta Testing Note:</strong> During the beta period, your data may be used for testing and improvement purposes only within the development team. All data will be securely migrated to the stable release.
+            <br><br>
+            For more details, read our <a href="#" class="text-primary">Privacy Policy</a> and <a href="#" class="text-primary">Terms of Service</a>.
         </div>
     </div>
     
     <div class="text-center mt-4">
+        <button class="btn btn-warning me-2">
+            <i class="fas fa-comment-dots me-2"></i>Send Beta Feedback
+        </button>
         <button class="btn btn-outline-secondary me-2">
             <i class="fas fa-file-alt me-2"></i>View Changelog
         </button>
@@ -618,27 +627,9 @@ function toggleFAQ(element) {
     faqItem.classList.toggle('active');
 }
 
-// Toggle Switch Handler
-document.querySelectorAll('.toggle-switch input').forEach(toggle => {
-    toggle.addEventListener('change', function() {
-        const label = this.closest('.setting-item').querySelector('.setting-label').textContent;
-        const status = this.checked ? 'enabled' : 'disabled';
-        toastr.info(`${label} ${status}`, 'Setting Updated');
-        
-        // Send AJAX request to save preference
-        // $.post('index.php?page=profile&action=updateSettings', { ... });
-    });
-});
-
-// Log out all devices
-document.querySelector('.btn-danger.w-100').addEventListener('click', function() {
-    if (confirm('Are you sure you want to log out of all devices? You will need to log in again on this device.')) {
-        // Implement logout logic
-        toastr.warning('Logging out of all devices...', 'Security Action');
-        setTimeout(() => {
-            window.location.href = 'index.php?page=login&action=logout';
-        }, 2000);
-    }
+// Beta Feedback Button
+document.querySelector('.btn-warning').addEventListener('click', function() {
+    window.location.href = 'mailto:itsupport@parliament.lk?subject=Beta Feedback - Parliament Intern Logbook&body=Beta Version: v0.9.5%0D%0AUser: <?= $_SESSION['name'] ?? 'User' ?>%0D%0ARole: <?= $_SESSION['role'] ?? 'User' ?>%0D%0A%0D%0AFeedback:%0D%0A';
 });
 </script>
 

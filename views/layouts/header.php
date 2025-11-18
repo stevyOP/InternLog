@@ -835,6 +835,78 @@
             transform: translateX(3px);
         }
 
+        /* Beta Version Badge */
+        .beta-badge {
+            position: fixed;
+            top: 76px;
+            right: 0;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 0.5rem 1.5rem 0.5rem 1rem;
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            z-index: 9000;
+            box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px 0 0 8px;
+            animation: betaPulse 2s ease-in-out infinite;
+        }
+
+        .beta-badge i {
+            margin-right: 0.5rem;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes betaPulse {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-5px); }
+        }
+
+        /* Beta Notice Banner */
+        .beta-notice-banner {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+            border-left: 4px solid #f59e0b;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            animation: slideDown 0.5s ease;
+        }
+
+        .beta-notice-banner h5 {
+            color: #d97706;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .beta-notice-banner p {
+            color: #92400e;
+            margin: 0;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .beta-notice-banner .btn-feedback {
+            margin-top: 0.75rem;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .beta-notice-banner .btn-feedback:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .stats-card {
@@ -847,6 +919,12 @@
             
             .card {
                 margin-bottom: 1rem;
+            }
+
+            .beta-badge {
+                top: 56px;
+                font-size: 0.65rem;
+                padding: 0.4rem 1rem 0.4rem 0.8rem;
             }
         }
 
@@ -874,6 +952,7 @@
             <a class="navbar-brand" href="index.php?page=dashboard">
                 <i class="fas fa-landmark me-2"></i>
                 Parliament Intern Logbook
+                <span class="badge bg-warning text-dark ms-2" style="font-size: 0.65rem; vertical-align: middle;">BETA</span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -930,6 +1009,12 @@
             </div>
         </div>
     </nav>
+
+    <!-- Beta Version Badge -->
+    <div class="beta-badge">
+        <i class="fas fa-flask"></i>
+        BETA v0.9.5
+    </div>
 
     <div class="container-fluid" style="overflow: visible;">
         <div class="row" style="overflow: visible;">
