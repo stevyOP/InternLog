@@ -16,8 +16,47 @@ class AdminController {
      * Display admin dashboard (redirected from main dashboard)
      */
     public function index() {
-        header('Location: index.php?page=dashboard');
-        exit;
+        requireRole('admin');
+        
+        try {
+            // Get statistics for the admin page
+            
+            // Total users
+            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM users");
+            $stmt->execute();
+            $total_users = $stmt->fetch()['count'];
+            
+            // Active interns
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) as count FROM users u
+                JOIN intern_profiles ip ON u.id = ip.user_id
+                WHERE u.role = 'intern' AND ip.status = 'active'
+            ");
+            $stmt->execute();
+            $active_interns = $stmt->fetch()['count'];
+            
+            // Total logs today
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) as count FROM daily_logs
+                WHERE DATE(created_at) = CURDATE()
+            ");
+            $stmt->execute();
+            $total_logs_today = $stmt->fetch()['count'];
+            
+            // Pending approvals
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) as count FROM daily_logs
+                WHERE status = 'pending'
+            ");
+            $stmt->execute();
+            $pending_approvals = $stmt->fetch()['count'];
+            
+            include 'views/admin/index.php';
+        } catch (Exception $e) {
+            setFlashMessage('error', 'Failed to load administration page.');
+            header('Location: index.php?page=dashboard');
+            exit;
+        }
     }
 
     /**
