@@ -475,6 +475,120 @@ class InternController {
     }
 
     /**
+     * Display overview page with profile and performance summary
+     */
+    public function overview() {
+        requireRole('intern');
+        
+        $user_id = $_SESSION['user_id'];
+        
+        try {
+            // Get all logs for skills summary
+            $stmt = $this->db->prepare("
+                SELECT * FROM daily_logs 
+                WHERE intern_id = ?
+                ORDER BY date DESC
+            ");
+            $stmt->execute([$user_id]);
+            $all_logs = $stmt->fetchAll();
+            $recent_logs = $all_logs;
+            
+            // Get recent evaluations
+            $stmt = $this->db->prepare("
+                SELECT * FROM evaluations 
+                WHERE intern_id = ?
+                ORDER BY week_no DESC
+                LIMIT 5
+            ");
+            $stmt->execute([$user_id]);
+            $recent_evaluations = $stmt->fetchAll();
+            
+            // Get intern profile with supervisor info
+            $stmt = $this->db->prepare("
+                SELECT ip.*, u.name as supervisor_name
+                FROM intern_profiles ip
+                LEFT JOIN users u ON ip.supervisor_id = u.id
+                WHERE ip.user_id = ?
+            ");
+            $stmt->execute([$user_id]);
+            $profile = $stmt->fetch();
+            
+            // Calculate skills summary
+            $skills_summary = [];
+            foreach ($all_logs as $log) {
+                if (!empty($log['skills'])) {
+                    $skills = array_map('trim', explode(',', $log['skills']));
+                    foreach ($skills as $skill) {
+                        if (!empty($skill)) {
+                            $skills_summary[$skill] = ($skills_summary[$skill] ?? 0) + 1;
+                        }
+                    }
+                }
+            }
+            arsort($skills_summary);
+            $skills_summary = array_slice($skills_summary, 0, 10);
+            
+            $data = [
+                'recent_logs' => $recent_logs,
+                'recent_evaluations' => $recent_evaluations,
+                'profile' => $profile,
+                'skills_summary' => $skills_summary
+            ];
+            
+            include 'views/intern/overview.php';
+        } catch (Exception $e) {
+            setFlashMessage('error', 'Failed to load overview.');
+            header('Location: index.php?page=dashboard');
+            exit;
+        }
+    }
+
+    /**
+     * Generate total report
+     */
+    public function totalReport() {
+        requireRole('intern');
+        
+        $user_id = $_SESSION['user_id'];
+        
+        try {
+            // Get all logs
+            $stmt = $this->db->prepare("
+                SELECT * FROM daily_logs 
+                WHERE intern_id = ?
+                ORDER BY date ASC
+            ");
+            $stmt->execute([$user_id]);
+            $logs = $stmt->fetchAll();
+
+            // Get intern profile
+            $stmt = $this->db->prepare("
+                SELECT ip.*, u.name as intern_name, u.email as intern_email,
+                       s.name as supervisor_name
+                FROM intern_profiles ip
+                JOIN users u ON ip.user_id = u.id
+                JOIN users s ON ip.supervisor_id = s.id
+                WHERE ip.user_id = ?
+            ");
+            $stmt->execute([$user_id]);
+            $profile = $stmt->fetch();
+
+            if (!$profile) {
+                setFlashMessage('error', 'Profile not found.');
+                header('Location: index.php?page=dashboard');
+                exit;
+            }
+
+            // Generate PDF using simple HTML to PDF conversion
+            $this->generateTotalPDF($profile, $logs);
+        } catch (Exception $e) {
+            setFlashMessage('error', 'Failed to generate report.');
+            header('Location: index.php?page=dashboard');
+            exit;
+        }
+    }
+
+    /**
      * Generate PDF content
      */
     private function generateWeeklyPDF($profile, $logs, $week_start, $week_end) {
@@ -548,6 +662,110 @@ class InternController {
                 <p><strong>Approved Logs:</strong> ' . count(array_filter($logs, function($log) { return $log['status'] === 'approved'; })) . '</p>
                 <p><strong>Pending Logs:</strong> ' . count(array_filter($logs, function($log) { return $log['status'] === 'pending'; })) . '</p>
             </div>
+
+            <div class="footer">
+                <p>This report was generated automatically by the Parliament Intern Logbook System</p>
+                <p>Parliament of Sri Lanka - ' . date('Y') . '</p>
+            </div>
+        </body>
+        </html>';
+
+        // For now, we'll output the HTML. In production, you'd use a proper PDF library like DomPDF
+        header('Content-Type: text/html; charset=UTF-8');
+        echo $html;
+        exit;
+    }
+
+    /**
+     * Generate Total Report PDF
+     */
+    private function generateTotalPDF($profile, $logs) {
+        $start_date = $profile['start_date'];
+        $end_date = $profile['end_date'];
+        
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Total Report - ' . $profile['intern_name'] . '</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .header h1 { color: #840100; margin-bottom: 10px; }
+                .header h2 { color: #840100; margin-bottom: 20px; }
+                .info-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                .info-table td { padding: 8px; border: 1px solid #ddd; }
+                .info-table td:first-child { background-color: #f8f9fa; font-weight: bold; width: 200px; }
+                .logs-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                .logs-table th, .logs-table td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+                .logs-table th { background-color: #840100; color: white; }
+                .logs-table tr:nth-child(even) { background-color: #f8f9fa; }
+                .summary { background-color: #e9ecef; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+                .footer { text-align: center; margin-top: 30px; color: #6c757d; }
+                .status-badge { padding: 4px 8px; border-radius: 3px; color: white; font-size: 11px; }
+                .status-approved { background-color: #28a745; }
+                .status-pending { background-color: #ffc107; color: #000; }
+                .status-rejected { background-color: #dc3545; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Parliament of Sri Lanka</h1>
+                <h2>Internship Total Report</h2>
+                <p>Complete Log History</p>
+            </div>
+
+            <table class="info-table">
+                <tr><td>Intern Name:</td><td>' . htmlspecialchars($profile['intern_name']) . '</td></tr>
+                <tr><td>Email:</td><td>' . htmlspecialchars($profile['intern_email']) . '</td></tr>
+                <tr><td>Department:</td><td>' . getDepartmentName($profile['department']) . '</td></tr>
+                <tr><td>Supervisor:</td><td>' . htmlspecialchars($profile['supervisor_name']) . '</td></tr>
+                <tr><td>Internship Period:</td><td>' . date('F j, Y', strtotime($start_date)) . ' - ' . date('F j, Y', strtotime($end_date)) . '</td></tr>
+                <tr><td>Report Generated:</td><td>' . date('F j, Y g:i A') . '</td></tr>
+            </table>
+
+            <div class="summary">
+                <h3>Overall Summary</h3>
+                <p><strong>Total Logs Submitted:</strong> ' . count($logs) . '</p>
+                <p><strong>Approved Logs:</strong> ' . count(array_filter($logs, function($log) { return $log['status'] === 'approved'; })) . '</p>
+                <p><strong>Pending Logs:</strong> ' . count(array_filter($logs, function($log) { return $log['status'] === 'pending'; })) . '</p>
+                <p><strong>Rejected Logs:</strong> ' . count(array_filter($logs, function($log) { return $log['status'] === 'rejected'; })) . '</p>
+            </div>
+
+            <h3>All Daily Logs</h3>
+            <table class="logs-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Tasks Description</th>
+                        <th>Skills Learned</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+        foreach ($logs as $log) {
+            $status_class = 'status-' . $log['status'];
+            $html .= '
+                    <tr>
+                        <td>' . date('M j, Y', strtotime($log['date'])) . '</td>
+                        <td>' . htmlspecialchars($log['task_description']) . '</td>
+                        <td>' . htmlspecialchars($log['skills'] ?? 'N/A') . '</td>
+                        <td><span class="status-badge ' . $status_class . '">' . ucfirst($log['status']) . '</span></td>
+                    </tr>';
+        }
+
+        if (empty($logs)) {
+            $html .= '
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #6c757d;">No logs submitted yet</td>
+                    </tr>';
+        }
+
+        $html .= '
+                </tbody>
+            </table>
 
             <div class="footer">
                 <p>This report was generated automatically by the Parliament Intern Logbook System</p>

@@ -422,6 +422,51 @@
             });
 
             // =================================================================
+            // BETA BANNER CLOSE FUNCTIONALITY
+            // =================================================================
+            window.closeBetaBanner = function() {
+                const banner = document.getElementById('betaBanner');
+                if (banner) {
+                    banner.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    banner.style.opacity = '0';
+                    banner.style.transform = 'translateY(-20px)';
+                    setTimeout(function() {
+                        banner.style.display = 'none';
+                        localStorage.setItem('betaBannerClosed_<?= $_SESSION['user_id'] ?? '' ?>', 'true');
+                    }, 300);
+                }
+            };
+
+            window.closeBetaFloatingBadge = function() {
+                const badge = document.getElementById('betaFloatingBadge');
+                if (badge) {
+                    badge.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    badge.style.opacity = '0';
+                    badge.style.transform = 'translateX(100%)';
+                    setTimeout(function() {
+                        badge.style.display = 'none';
+                        localStorage.setItem('betaFloatingBadgeClosed_<?= $_SESSION['user_id'] ?? '' ?>', 'true');
+                    }, 300);
+                }
+            };
+
+            // Check if beta banner was previously closed
+            if (localStorage.getItem('betaBannerClosed_<?= $_SESSION['user_id'] ?? '' ?>') === 'true') {
+                const banner = document.getElementById('betaBanner');
+                if (banner) {
+                    banner.style.display = 'none';
+                }
+            }
+
+            // Check if beta floating badge was previously closed
+            if (localStorage.getItem('betaFloatingBadgeClosed_<?= $_SESSION['user_id'] ?? '' ?>') === 'true') {
+                const badge = document.getElementById('betaFloatingBadge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+
+            // =================================================================
             // DIAGNOSTIC
             // =================================================================
             console.log('Enhanced UX features initialized');

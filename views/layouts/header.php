@@ -201,9 +201,8 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             box-shadow: 4px 0 30px rgba(0, 0, 0, 0.08);
-            min-height: calc(100vh - 76px);
-            position: sticky;
-            top: 76px;
+            min-height: 100%;
+            position: relative;
             z-index: 1000;
             border-right: 1px solid rgba(132, 1, 0, 0.1);
         }
@@ -851,6 +850,31 @@
             box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.15);
             border-radius: 8px 0 0 8px;
             animation: betaPulse 2s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .beta-badge .beta-badge-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 0;
+            transition: all 0.2s ease;
+            margin-left: -0.5rem;
+        }
+
+        .beta-badge .beta-badge-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
 
         .beta-badge i {
@@ -1021,7 +1045,10 @@
     </nav>
 
     <!-- Beta Version Badge -->
-    <div class="beta-badge">
+    <div class="beta-badge" id="betaFloatingBadge">
+        <button type="button" class="beta-badge-close" aria-label="Close" onclick="closeBetaFloatingBadge()">
+            <i class="fas fa-times"></i>
+        </button>
         <i class="fas fa-flask"></i>
         BETA v0.9.5
     </div>
