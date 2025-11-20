@@ -372,42 +372,44 @@ include 'views/layouts/header.php';
     </div>
 </div>
 
+<?php include 'views/layouts/footer.php'; ?>
+
 <script>
 // Users by Role Chart
-const usersByRoleCtx = document.getElementById('usersByRoleChart').getContext('2d');
-const usersByRoleData = <?= json_encode($users_by_role) ?>;
+document.addEventListener('DOMContentLoaded', function() {
+    const usersByRoleCtx = document.getElementById('usersByRoleChart').getContext('2d');
+    const usersByRoleData = <?= json_encode($users_by_role) ?>;
 
-const roleLabels = usersByRoleData.map(item => item.role.charAt(0).toUpperCase() + item.role.slice(1));
-const roleCounts = usersByRoleData.map(item => parseInt(item.count));
+    const roleLabels = usersByRoleData.map(item => item.role.charAt(0).toUpperCase() + item.role.slice(1));
+    const roleCounts = usersByRoleData.map(item => parseInt(item.count));
 
-new Chart(usersByRoleCtx, {
-    type: 'doughnut',
-    data: {
-        labels: roleLabels,
-        datasets: [{
-            data: roleCounts,
-            backgroundColor: [
-                '#840100',
-                '#5c0100',
-                '#a60100',
-                '#3d0100'
-            ],
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom'
+    new Chart(usersByRoleCtx, {
+        type: 'doughnut',
+        data: {
+            labels: roleLabels,
+            datasets: [{
+                data: roleCounts,
+                backgroundColor: [
+                    '#840100',
+                    '#5c0100',
+                    '#a60100',
+                    '#3d0100'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
             }
         }
-    }
+    });
 });
 </script>
-
-<?php include 'views/layouts/footer.php'; ?>
 
 

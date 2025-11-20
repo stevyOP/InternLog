@@ -451,29 +451,29 @@
             };
 
             // Check if beta banner was previously closed
-            if (localStorage.getItem('betaBannerClosed_<?= $_SESSION['user_id'] ?? '' ?>') === 'true') {
-                const banner = document.getElementById('betaBanner');
-                if (banner) {
+            const banner = document.getElementById('betaBanner');
+            if (banner) {
+                if (localStorage.getItem('betaBannerClosed_<?= $_SESSION['user_id'] ?? '' ?>') === 'true') {
                     banner.style.display = 'none';
+                } else {
+                    // Auto-close banner after 30 seconds
+                    setTimeout(function() {
+                        closeBetaBanner();
+                    }, 30000);
                 }
-            } else {
-                // Auto-close banner after 30 seconds
-                setTimeout(function() {
-                    closeBetaBanner();
-                }, 30000);
             }
 
             // Check if beta floating badge was previously closed
-            if (localStorage.getItem('betaFloatingBadgeClosed_<?= $_SESSION['user_id'] ?? '' ?>') === 'true') {
-                const badge = document.getElementById('betaFloatingBadge');
-                if (badge) {
+            const badge = document.getElementById('betaFloatingBadge');
+            if (badge) {
+                if (localStorage.getItem('betaFloatingBadgeClosed_<?= $_SESSION['user_id'] ?? '' ?>') === 'true') {
                     badge.style.display = 'none';
+                } else {
+                    // Auto-close badge after 30 seconds
+                    setTimeout(function() {
+                        closeBetaFloatingBadge();
+                    }, 30000);
                 }
-            } else {
-                // Auto-close badge after 30 seconds
-                setTimeout(function() {
-                    closeBetaFloatingBadge();
-                }, 30000);
             }
 
             // =================================================================
